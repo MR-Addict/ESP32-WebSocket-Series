@@ -69,7 +69,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
     case WStype_CONNECTED: {
         IPAddress ip = websocket.remoteIP(num);
         Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-        websocket.sendTXT(num, "Connected from server");
+        if (LED_Status)websocket.sendTXT(num, "LED ON");
+        else websocket.sendTXT(num, "LED OFF");
       }
       break;
     case WStype_TEXT: {
@@ -77,8 +78,12 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
         String message = String((char*)( payload));
         if (message == "LED ON") {
           digitalWrite(LED_Pin, HIGH);
+          LED_Status = true;
         }
-        else digitalWrite(LED_Pin, LOW);
+        else {
+          digitalWrite(LED_Pin, LOW);
+          LED_Status = false;
+        }
         websocket.broadcastTXT(message);
       }
       break;
